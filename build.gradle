@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id "org.liquibase.gradle" version "2.0.2"
+    id "com.bmuschko.docker-remote-api" version "6.1.4"
+}
+
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.*
+
+docker {
+    url = 'tcp://host.docker.internal:2375'
+//    url = 'unix:///var/run/docker.sock'
+//    url = 'tcp://127.0.0.1:2375'
+//    url = 'npipe:////./pipe/docker_engine'
+}
+
+task dockerInit(type: Copy) {
+    dependsOn assemble
+
+    into("$buildDir/docker")
+    from("src/docker") {
+        include '**/*.dockerfile'
+        include 'entrypoint.sh'
+    }
+    from("$buildDir/libs/") {
+        include '**/*.jar'
+    }
+}
+
+task dockerImageBuild(type: DockerBuildImage) {
+    dependsOn dockerInit
+
+    images.add('dongpak/addressapi:latest')
+    inputDir	= file("$buildDir/docker")
+    dockerFile	= file("$buildDir/docker/jdk8.dockerfile")
+    remove		= true
+}
+
+group 'com.churchclerk'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jersey'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'com.churchclerk:securityapi:1.1'
+
+    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly 'org.liquibase:liquibase-core'
+    runtimeOnly 'com.auth0:java-jwt:3.2.0'
+//    runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation('com.h2database:h2')
+    testImplementation('com.google.code.gson:gson')
+}
+
+test {
+    useJUnitPlatform()
+}
