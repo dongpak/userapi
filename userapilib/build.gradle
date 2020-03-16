@@ -4,6 +4,9 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 }
 
+group 'com.churchclerk'
+version '1.0'
+
 sourceCompatibility = 1.8
 
 repositories {
