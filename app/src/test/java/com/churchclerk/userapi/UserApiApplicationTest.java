@@ -3,6 +3,7 @@
 package com.churchclerk.userapi;
 
 import com.churchclerk.baseapi.BaseApi;
+import com.churchclerk.baseapi.model.ApiCaller;
 import com.churchclerk.userapi.api.UserApi;
 import com.churchclerk.securityapi.SecurityApi;
 import com.churchclerk.securityapi.SecurityToken;
@@ -49,7 +50,6 @@ public class UserApiApplicationTest {
 	private TestRestTemplate	restTemplate;
 
 	private SecurityToken		testToken;
-
 	private HttpHeaders 		testHeaders;
 
 	@BeforeEach
@@ -73,7 +73,7 @@ public class UserApiApplicationTest {
 		testToken = new SecurityToken();
 
 		testToken.setId(id + "|");
-		testToken.setRoles(BaseApi.Role.SUPER.name());
+		testToken.setRoles(ApiCaller.Role.SUPER.name());
 		testToken.setLocation(location);
 		testToken.setSecret(testSecret);
 

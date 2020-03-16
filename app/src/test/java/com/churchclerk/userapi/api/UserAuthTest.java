@@ -3,7 +3,7 @@
 package com.churchclerk.userapi.api;
 
 
-import com.churchclerk.baseapi.BaseApi;
+import com.churchclerk.baseapi.model.ApiCaller;
 import com.churchclerk.securityapi.SecurityApi;
 import com.churchclerk.securityapi.SecurityToken;
 import com.churchclerk.userapi.entity.UserEntity;
@@ -78,7 +78,7 @@ public class UserAuthTest {
 		User	resource = new User();
 
 		resource.setName(name);
-		resource.setRoles(BaseApi.Role.ADMIN.name());
+		resource.setRoles(ApiCaller.Role.ADMIN.name());
 		resource.setToken(UUID.randomUUID().toString());
 		resource.setActive(true);
 		return resource;
@@ -88,7 +88,7 @@ public class UserAuthTest {
 		testToken = new SecurityToken();
 
 		testToken.setId(id + "|");
-		testToken.setRoles(BaseApi.Role.SUPER.name());
+		testToken.setRoles(ApiCaller.Role.SUPER.name());
 		testToken.setLocation(location);
 		testToken.setSecret(testSecret);
 

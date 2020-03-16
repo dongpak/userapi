@@ -57,6 +57,10 @@ public class UserService {
 	public User getResource(String id) {
 
 		Optional<UserEntity> entity = storage.findById(id);
+		if (entity.isPresent() == false) {
+			return null;
+		}
+
 		return entity.get();
 	}
 

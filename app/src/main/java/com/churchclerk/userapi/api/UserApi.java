@@ -4,22 +4,18 @@
 package com.churchclerk.userapi.api;
 
 import com.churchclerk.baseapi.BaseApi;
+import com.churchclerk.baseapi.model.ApiCaller;
 import com.churchclerk.userapi.model.User;
 import com.churchclerk.userapi.service.UserService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.Date;
 
 
 /**
@@ -36,11 +32,8 @@ public class UserApi extends BaseApi<User> {
 	@QueryParam("name")
 	private String nameLike;
 
-	@QueryParam("token")
-	private String tokenLike;
-
-	@QueryParam("role")
-	private String roleLike;
+	@QueryParam("roles")
+	private String rolesLike;
 
 	@QueryParam("churchId")
 	private String churchIdLike;
@@ -55,9 +48,10 @@ public class UserApi extends BaseApi<User> {
 	 */
 	public UserApi() {
 		super(logger, User.class);
-		setReadRoles(Role.ADMIN, Role.CLERK, Role.OFFICIAL, Role.MEMBER, Role.NONMEMBER);
-		setUpdateRoles(Role.ADMIN);
-		setDeleteRoles(Role.ADMIN);
+		setCreateRoles(ApiCaller.Role.ADMIN);
+		setReadRoles(ApiCaller.Role.ADMIN);
+		setUpdateRoles(ApiCaller.Role.ADMIN);
+		setDeleteRoles(ApiCaller.Role.ADMIN);
 	}
 
 	@Override
@@ -74,16 +68,16 @@ public class UserApi extends BaseApi<User> {
 			criteria.setActive(active.booleanValue());
 		}
 		criteria.setName(nameLike);
-		criteria.setRoles(roleLike);
+		criteria.setRoles(rolesLike);
 
-		if (readAllowed(churchIdLike == null ? null : churchIdLike)) {
+		if (readAllowed(churchIdLike)) {
 			if (churchIdLike != null) {
 				criteria.setChurchId(churchIdLike);
 			}
 		}
 		else {
 			// force return of empty array
-			criteria.setChurchId(UUID.randomUUID().toString());
+			criteria.setChurchId("NOTALLOWED");
 		}
 
 		return criteria;
@@ -91,7 +85,10 @@ public class UserApi extends BaseApi<User> {
 
 
 	@Override
-	protected User doGet(String id) {
+	protected User doGet() {
+		if ((id == null) || (id.trim().isEmpty())) {
+			throw new BadRequestException("User id/name cannot be empty");
+		}
 
 		User resource = service.getResource(id);
 
@@ -104,47 +101,85 @@ public class UserApi extends BaseApi<User> {
 
 	@Override
 	protected User doCreate(User resource) {
-
-		if (createAllowed(resource.getChurchId())) {
-			resource.setCreatedBy(requesterId);
-			resource.setCreatedDate(new Date());
-			resource.setUpdatedBy(requesterId);
-			resource.setUpdatedDate(new Date());
-
-			return service.createResource(resource);
+		if (resource.getId() != null) {
+			throw new BadRequestException("User id should not be present");
 		}
 
-		throw new NotAuthorizedException("Invalid role");
+		if ((resource.getName() == null) || (resource.getToken() == null) || (resource.getRoles() == null) || (resource.getChurchId() == null)) {
+			throw new BadRequestException("User's name, token, roles, and churchId cannot be null");
+		}
+
+		if (createAllowed(resource.getChurchId()) == false) {
+			throw new ForbiddenException();
+		}
+
+		//resource.setId(UUID.randomUUID().toString());
+		resource.setCreatedBy(apiCaller.getUserid());
+		resource.setCreatedDate(new Date());
+		resource.setUpdatedBy(apiCaller.getUserid());
+		resource.setUpdatedDate(new Date());
+
+		return service.createResource(resource);
 	}
 
 	@Override
 	protected User doUpdate(User resource) {
+		if ((id == null) || (id.isEmpty()) || (resource.getName() == null) || (resource.getName().isEmpty())) {
+			throw new BadRequestException("User id/name cannot be empty");
+		}
+
+		if (resource.getName().equals(id) == false) {
+			throw new BadRequestException("User id/name does not match");
+		}
+
+		if ((resource.getChurchId() == null) && (hasSuperRole() == false)) {
+			throw new BadRequestException("User's churchId  cannot be empty");
+		}
+
 		User found = service.getResource(id);
 
-		if ((found == null) || (updateAllowed(found.getChurchId()) == false)) {
-			throw new NotFoundException("User not found or not authorized");
+		if (found == null) {
+			throw new NotFoundException("User not found: " + id);
 		}
 
-		if (resource.getName() == null) {
-			resource.setName(found.getName());
-		}
-		if (resource.getRoles() == null) {
-			resource.setRoles(found.getRoles());
-		}
-		if (resource.getChurchId() == null) {
-			resource.setChurchId(found.getChurchId());
+		if ((found.getChurchId() == null) && (hasSuperRole() == false)) {
+			throw new ForbiddenException();
 		}
 
-		resource.setUpdatedBy(requesterId);
+		if (updateAllowed(found.getChurchId()) == false) {
+			throw new ForbiddenException();
+		}
+
+		resource.setUpdatedBy(apiCaller.getUserid());
 		resource.setUpdatedDate(new Date());
 
 		return service.updateResource(resource);
 	}
 
 	@Override
-	protected User doDelete(String id) {
+	protected User doDelete() {
+		if ((id == null) || id.isEmpty()) {
+			throw new BadRequestException("User id cannot be empty");
+		}
+
+		User found = service.getResource(id);
+
+		if (found == null) {
+			throw new NotFoundException("User not found: " + id);
+		}
+
+		if (found.getChurchId() == null) {
+			throw new ForbiddenException();
+		}
+
+		if (found.getName().equals(apiCaller.getUserid())) {
+			throw new ForbiddenException();
+		}
+
+		if (deleteAllowed(found.getChurchId()) == false) {
+			throw new ForbiddenException();
+		}
+
 		return service.deleteResource(id);
 	}
-
-
 }
