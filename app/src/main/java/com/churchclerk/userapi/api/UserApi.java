@@ -68,6 +68,14 @@ public class UserApi extends BaseApi<User> {
 		criteria.setName(nameLike);
 		criteria.setRoles(rolesLike);
 
+		if (churchIdLike == null) {
+			apiCaller.getMemberOf().forEach(id -> {
+				if (churchIdLike == null) {
+					churchIdLike = id;
+				}
+			});
+		}
+
 		if (readAllowed(churchIdLike)) {
 			if (churchIdLike != null) {
 				criteria.setChurchId(churchIdLike);
