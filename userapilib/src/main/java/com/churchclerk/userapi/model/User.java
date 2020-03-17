@@ -81,4 +81,16 @@ public class User extends BaseModel {
         setRoles(source.getRoles());
         setToken(source.getToken());
     }
+
+    /**
+     *
+     * @param source
+     */
+    public void copyNonNulls(User source) {
+        super.copyNonNulls(source);
+        copy(source.getChurchId(), this::setChurchId);
+        copy(source.getName(), this::setName);
+        copy(source.getRoles(), this::setRoles);
+        copy(source.getToken(), this::setToken);
+    }
 }

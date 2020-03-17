@@ -168,6 +168,7 @@ public class UserApiTest {
 		Mockito.when(testService.updateResource(testResource)).thenReturn(testResource);
 
 		testResource.setActive(false);
+
 		Response response = testObject.updateResource(testResource);
 
 		Assertions.assertThat(response.getEntity()).isNotNull();

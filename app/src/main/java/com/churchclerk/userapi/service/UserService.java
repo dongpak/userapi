@@ -106,7 +106,7 @@ public class UserService {
 				encryptToken(resource);
 			}
 
-			entity.copy(resource);
+			entity.copyNonNulls(resource);
 			return storage.save(entity);
 		}
 

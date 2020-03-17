@@ -63,10 +63,8 @@ public class UserApi extends BaseApi<User> {
 	private User createCriteria() {
 		User criteria	= new User();
 
-		criteria.setActive(true);
-		if (active != null) {
-			criteria.setActive(active.booleanValue());
-		}
+		addBaseCriteria(criteria);
+
 		criteria.setName(nameLike);
 		criteria.setRoles(rolesLike);
 
@@ -142,11 +140,8 @@ public class UserApi extends BaseApi<User> {
 			throw new NotFoundException("User not found: " + id);
 		}
 
-		if ((found.getChurchId() == null) && (hasSuperRole() == false)) {
-			throw new ForbiddenException();
-		}
-
-		if (updateAllowed(found.getChurchId()) == false) {
+		// -- church id is null and has super role, then allow
+		if (updateAllowed(found.getChurchId(), this::hasSuperRole) == false) {
 			throw new ForbiddenException();
 		}
 
