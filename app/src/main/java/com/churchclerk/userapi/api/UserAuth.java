@@ -31,6 +31,18 @@ public class UserAuth extends BaseApi<User> {
         super(logger, User.class);
     }
 
+    @GET
+    @Path("info")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response authInfo() {
+        try {
+            return Response.ok(apiCaller).build();
+        }
+        catch (Throwable t) {
+            return generateErrorResponse(t);
+        }
+    }
+
     @POST
     @Path("jwt")
     @Consumes({MediaType.APPLICATION_JSON})
