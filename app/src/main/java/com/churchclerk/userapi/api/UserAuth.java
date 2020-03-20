@@ -36,6 +36,7 @@ public class UserAuth extends BaseApi<User> {
     @Produces({MediaType.APPLICATION_JSON})
     public Response authInfo() {
         try {
+            parseApiCallerInfo();
             return Response.ok(apiCaller).build();
         }
         catch (Throwable t) {
