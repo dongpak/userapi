@@ -150,16 +150,27 @@ public class UserService {
 
 		SecurityToken	token = new SecurityToken();
 
-		token.setId(resource.getName() + "|" + optional.get().getChurchId());
+		token.setId(createIdentifiers(optional.get()));
 		token.setRoles(optional.get().getRoles());
 		token.setLocation(location);
 		token.setSecret(secret);
-		token.setValidFor(10000000);
+		token.setValidFor(1000*60*60*24*356);
 
 		if (SecurityApi.process(token) == false) {
 			throw new NotAuthorizedException("Invalid configuration");
 		}
 
 		return token.getJwt();
+	}
+
+	private String createIdentifiers(User resource) {
+		StringBuffer	buffer = new StringBuffer(resource.getName());
+
+		buffer.append("|");
+		if (resource.getChurchId() != null) {
+			buffer.append(resource.getChurchId());
+		}
+
+		return buffer.toString();
 	}
 }
