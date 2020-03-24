@@ -164,8 +164,9 @@ public class UserService {
 	}
 
 	private String createIdentifiers(User resource) {
-		StringBuffer	buffer = new StringBuffer(resource.getName());
+		StringBuffer	buffer = new StringBuffer();
 
+		buffer.append(resource.getName());
 		buffer.append("|");
 		if (resource.getChurchId() != null) {
 			buffer.append(resource.getChurchId());
