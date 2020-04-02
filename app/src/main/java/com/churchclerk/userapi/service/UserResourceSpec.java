@@ -28,7 +28,7 @@ public class UserResourceSpec implements Specification<UserEntity> {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         addPredicate(criteriaBuilder, root, "name", criteria.getName(), predicates);
-        addPredicate(criteriaBuilder, root, "role", criteria.getRoles(), predicates);
+        addPredicate(criteriaBuilder, root, "roles", criteria.getRoles(), predicates);
         addPredicate(criteriaBuilder, root, "churchId", criteria.getChurchId(), predicates);
         addPredicate(criteriaBuilder, root, "active", criteria.isActive(), predicates);
 
