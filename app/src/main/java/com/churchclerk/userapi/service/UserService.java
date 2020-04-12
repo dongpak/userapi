@@ -3,6 +3,10 @@
  */
 package com.churchclerk.userapi.service;
 
+import com.churchclerk.churchapi.entity.ChurchEntity;
+import com.churchclerk.churchapi.model.Church;
+import com.churchclerk.memberapi.entity.MemberEntity;
+import com.churchclerk.memberapi.model.Member;
 import com.churchclerk.securityapi.SecurityApi;
 import com.churchclerk.securityapi.SecurityToken;
 import com.churchclerk.userapi.model.User;
@@ -14,8 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
@@ -46,7 +53,24 @@ public class UserService {
 
 		Page<UserEntity> page = storage.findAll(new UserResourceSpec(criteria), pageable);
 
+		page.forEach(this::moveMember);
 		return page;
+	}
+
+	private void moveMember(UserEntity entity) {
+		if (entity.getMemberEntity() != null) {
+			moveChurches(entity.getMemberEntity());
+			entity.setMember(entity.getMemberEntity());
+		}
+	}
+
+	private void moveChurches(MemberEntity entity) {
+		if (entity.getChurchEntities() != null) {
+			Set<Church> set = new HashSet<Church>();
+
+			entity.getChurchEntities().forEach(set::add);
+			entity.setChurches(set);
+		}
 	}
 
 	/**
@@ -56,12 +80,21 @@ public class UserService {
 	 */
 	public User getResource(String id) {
 
-		Optional<UserEntity> entity = storage.findById(id);
-		if (entity.isPresent() == false) {
-			return null;
-		}
+		Optional<UserEntity> optional = storage.findById(id);
 
-		return entity.get();
+		checkResourceNotFound(id, optional);
+
+		UserEntity	entity = optional.get();
+
+		moveMember(entity);
+		return entity;
+	}
+
+
+	private void checkResourceNotFound(String id, Optional<UserEntity> optional) {
+		if (optional.isPresent() == false) {
+			throw new NotFoundException("No such User resource with id: " + id);
+		}
 	}
 
 	/**
@@ -75,8 +108,26 @@ public class UserService {
 		encryptToken(resource);
 		entity.copy(resource);
 
-		return storage.save(entity);
+		if (resource.getMember() != null) {
+			entity.setMemberEntity(
+					createMemberEntity(resource.getMember())
+			);
+		}
+
+		UserEntity saved = storage.save(entity);
+		moveMember(saved);
+
+		return saved;
 	}
+
+	private MemberEntity createMemberEntity(Member resource) {
+		MemberEntity entity = new MemberEntity();
+
+		entity.copy(resource);
+
+		return entity;
+	}
+
 
 	private void encryptToken(User resource) {
 		BCryptPasswordEncoder	pe	= new BCryptPasswordEncoder();
@@ -96,21 +147,32 @@ public class UserService {
 	public User updateResource(User resource) {
 		Optional<UserEntity> optional = storage.findById(resource.getName());
 
-		if (optional.isPresent()) {
-			UserEntity entity = optional.get();
+		checkResourceNotFound(resource.getName(), optional);
 
-			if ((resource.getToken() == null) || (resource.getToken().startsWith("*"))) {
-				resource.setToken(entity.getToken());
-			}
-			else {
-				encryptToken(resource);
-			}
+		UserEntity entity = optional.get();
 
-			entity.copyNonNulls(resource);
-			return storage.save(entity);
+		if ((resource.getToken() == null) || (resource.getToken().startsWith("*"))) {
+			resource.setToken(entity.getToken());
+		}
+		else {
+			encryptToken(resource);
 		}
 
-		return resource;
+		entity.copyNonNulls(resource);
+		if (resource.getMember() != null) {
+			if ((entity.getMemberEntity() == null)
+			||  (resource.getMember().getId().equals(entity.getMemberEntity().getId()) == false)) {
+				// recreate member from resource
+				entity.setMemberEntity(
+						createMemberEntity(resource.getMember())
+				);
+			}
+		}
+
+		UserEntity saved = storage.save(entity);
+		moveMember(saved);
+
+		return saved;
 	}
 
 
@@ -122,12 +184,14 @@ public class UserService {
 	public User deleteResource(String id) {
 		Optional<UserEntity> optional = storage.findById(id);
 
-		if (optional.isPresent() == false) {
-			throw new NotFoundException("No such resource with id: " + id);
-		}
+		checkResourceNotFound(id, optional);
 
 		storage.deleteById(id);
-		return optional.get();
+
+		UserEntity entity = optional.get();
+		moveMember(entity);
+
+		return entity;
 	}
 
 	/**
@@ -154,7 +218,7 @@ public class UserService {
 		token.setRoles(optional.get().getRoles());
 		token.setLocation(location);
 		token.setSecret(secret);
-		token.setValidFor(1000*60*60*24*356);
+		token.setValidFor(1000*60*60*24);
 
 		if (SecurityApi.process(token) == false) {
 			throw new NotAuthorizedException("Invalid configuration");
@@ -168,6 +232,7 @@ public class UserService {
 
 		buffer.append(resource.getName());
 		buffer.append("|");
+
 		if (resource.getChurchId() != null) {
 			buffer.append(resource.getChurchId());
 		}

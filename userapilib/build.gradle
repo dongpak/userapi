@@ -25,8 +25,11 @@ jar {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jersey'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
 
     implementation 'com.churchclerk:baseapilib:1.0'
+    implementation 'com.churchclerk:memberapilib:1.0'
+    implementation 'com.churchclerk:churchapilib:1.0'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

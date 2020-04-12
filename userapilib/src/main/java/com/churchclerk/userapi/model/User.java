@@ -4,10 +4,10 @@
 package com.churchclerk.userapi.model;
 
 import com.churchclerk.baseapi.model.BaseModel;
+import com.churchclerk.memberapi.model.Member;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  *
@@ -18,6 +18,7 @@ public class User extends BaseModel {
     private String  token;
     private String  roles;
     private String  churchId;
+    private Member  member;
 
     public String getName() {
         return name;
@@ -52,6 +53,14 @@ public class User extends BaseModel {
         this.churchId = churchId;
     }
 
+    public Member getMember() {
+        return member;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -61,12 +70,13 @@ public class User extends BaseModel {
         return Objects.equals(name, user.name) &&
                 Objects.equals(token, user.token) &&
                 Objects.equals(roles, user.roles) &&
-                Objects.equals(churchId, user.churchId);
+                Objects.equals(churchId, user.churchId) &&
+                Objects.equals(member, user.member);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, token, roles, churchId);
+        return Objects.hash(super.hashCode(), name, token, roles, churchId, member);
     }
 
     /**
@@ -77,6 +87,7 @@ public class User extends BaseModel {
         super.copy(source);
 
         setChurchId(source.getChurchId());
+        setMember(source.getMember());
         setName(source.getName());
         setRoles(source.getRoles());
         setToken(source.getToken());
@@ -89,6 +100,7 @@ public class User extends BaseModel {
     public void copyNonNulls(User source) {
         super.copyNonNulls(source);
         copy(source.getChurchId(), this::setChurchId);
+        copy(source.getMember(), this::setMember);
         copy(source.getName(), this::setName);
         copy(source.getRoles(), this::setRoles);
         copy(source.getToken(), this::setToken);

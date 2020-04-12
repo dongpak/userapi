@@ -60,4 +60,11 @@
         </insert>
     </changeSet>
 
+    <changeSet id="2" author="dongp">
+        <addColumn tableName="user">
+            <column name="member_id" type="uuid">
+                <constraints foreignKeyName="fk_user_memer_id" referencedTableName="member" referencedColumnNames="ID"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

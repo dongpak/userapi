@@ -59,6 +59,9 @@ dependencies {
 
     implementation 'com.churchclerk:securityapi:1.1'
     implementation 'com.churchclerk:baseapilib:1.0'
+    implementation 'com.churchclerk:memberapilib:1.0'
+    implementation 'com.churchclerk:churchapilib:1.0'
+
     implementation project(':userapilib')
 
     runtimeOnly 'mysql:mysql-connector-java'

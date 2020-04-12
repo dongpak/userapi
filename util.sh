@@ -29,11 +29,16 @@ case $1 in
     docker service create --name ${MAIN} --network $2 --secret source=$3,target=churchclerk --env APP_ARG=--debug dongpak/${MAIN}:latest
     ;;
 
+  update)
+    docker service update ${MAIN}
+    ;;
+
   *)
     echo "util.sh build - runs the gradle build command"
     echo "util.sh lib - installs the library file(s)"
     echo "util.sh docker - builds the docker image"
     echo "util.sh run <network> <secret> - starts the service"
     echo "util.sh debug <network> <secret> - starts the service in debug"
+    echo "util.sh update <network> <secret> - updates the service"
     ;;
 esac

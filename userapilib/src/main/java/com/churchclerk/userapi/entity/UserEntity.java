@@ -3,13 +3,12 @@
  */
 package com.churchclerk.userapi.entity;
 
+import com.churchclerk.memberapi.entity.MemberEntity;
+import com.churchclerk.memberapi.model.Member;
 import com.churchclerk.userapi.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.UUID;
 
@@ -22,6 +21,8 @@ import java.util.UUID;
 @Entity
 @Table(name="user")
 public class UserEntity extends User {
+
+	private MemberEntity memberEntity;
 
 	@Column(name="active")
 	@Override
@@ -51,6 +52,22 @@ public class UserEntity extends User {
 	@Column(name="church_id")
 	public String getChurchId() {
 		return super.getChurchId();
+	}
+
+	@JsonIgnore
+	@OneToOne(fetch = FetchType.EAGER, optional = true, cascade = {CascadeType.PERSIST})
+	@JoinColumn(name = "member_id", nullable = true)
+	public MemberEntity getMemberEntity() {
+		return memberEntity;
+	}
+
+	public void setMemberEntity(MemberEntity memberEntity) {
+		this.memberEntity = memberEntity;
+	}
+
+	@Transient
+	public Member getMember() {
+		return super.getMember();
 	}
 
 	@Override
