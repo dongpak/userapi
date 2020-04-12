@@ -227,14 +227,21 @@ public class UserService {
 		return token.getJwt();
 	}
 
-	private String createIdentifiers(User resource) {
+	private String createIdentifiers(UserEntity entity) {
 		StringBuffer	buffer = new StringBuffer();
 
-		buffer.append(resource.getName());
+		buffer.append(entity.getName());
 		buffer.append("|");
 
-		if (resource.getChurchId() != null) {
-			buffer.append(resource.getChurchId());
+		if (entity.getMemberEntity() != null) {
+			buffer.append(entity.getMemberEntity().getId());
+
+			if (entity.getMemberEntity().getChurchEntities() != null) {
+				entity.getMemberEntity().getChurchEntities().forEach(church -> {
+					buffer.append("|");
+					buffer.append(church.getId());
+				});
+			}
 		}
 
 		return buffer.toString();
