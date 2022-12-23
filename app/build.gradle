@@ -3,7 +3,7 @@ plugins {
     id 'org.springframework.boot' version '2.2.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id "org.liquibase.gradle" version "2.0.2"
-    id "com.bmuschko.docker-remote-api" version "6.1.4"
+    id "com.google.cloud.tools.jib" version "2.4.0"
 }
 
 
@@ -11,39 +11,10 @@ import com.bmuschko.gradle.docker.tasks.container.*
 import com.bmuschko.gradle.docker.tasks.image.*
 import com.bmuschko.gradle.docker.tasks.*
 
-docker {
-    url = 'tcp://host.docker.internal:2375'
-//    url = 'unix:///var/run/docker.sock'
-//    url = 'tcp://127.0.0.1:2375'
-//    url = 'npipe:////./pipe/docker_engine'
-}
-
-task dockerInit(type: Copy) {
-    dependsOn assemble
-
-    into("$buildDir/docker")
-    from("src/docker") {
-        include '**/*.dockerfile'
-        include 'entrypoint.sh'
-    }
-    from("$buildDir/libs/") {
-        include '**/*.jar'
-    }
-}
-
-task dockerImageBuild(type: DockerBuildImage) {
-    dependsOn dockerInit
-
-    images.add('dongpak/addressapi:latest')
-    inputDir	= file("$buildDir/docker")
-    dockerFile	= file("$buildDir/docker/jdk8.dockerfile")
-    remove		= true
-}
-
 group 'com.churchclerk'
 version '1.0'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
