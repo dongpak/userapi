@@ -1,15 +1,10 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.2.4.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id "org.liquibase.gradle" version "2.0.2"
-    id "com.google.cloud.tools.jib" version "2.4.0"
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+    id "com.google.cloud.tools.jib"
+    id 'groovy'
 }
-
-
-import com.bmuschko.gradle.docker.tasks.container.*
-import com.bmuschko.gradle.docker.tasks.image.*
-import com.bmuschko.gradle.docker.tasks.*
 
 group 'com.churchclerk'
 version '1.0'
@@ -28,25 +23,32 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    implementation 'com.churchclerk:securityapi:1.1'
-    implementation 'com.churchclerk:baseapilib:1.0'
-    implementation 'com.churchclerk:memberapilib:1.0'
-    implementation 'com.churchclerk:churchapilib:1.0'
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation libs.securityapi
+    implementation libs.baseapilib
+    implementation libs.memberapilib
+    implementation libs.churchapilib
 
     implementation project(':userapilib')
 
-    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly libs.postgresql
     runtimeOnly 'org.liquibase:liquibase-core'
-    runtimeOnly 'com.auth0:java-jwt:3.2.0'
-    runtimeOnly 'com.churchclerk:securityapi:1.1'
+    runtimeOnly libs.java.jwt
+    runtimeOnly libs.securityapi
     runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
 
-
+    testImplementation libs.spock.core
+    testImplementation libs.groovy.all
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation('com.h2database:h2')
+    testImplementation libs.zonkytest
+    testImplementation 'io.zonky.test:embedded-postgres:2.0.3'
     testImplementation('com.google.code.gson:gson')
+    testImplementation(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 }
 
 test {

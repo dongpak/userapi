@@ -6,6 +6,7 @@ package com.churchclerk.userapi.api;
 import com.churchclerk.baseapi.BaseApi;
 import com.churchclerk.userapi.model.User;
 import com.churchclerk.userapi.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +21,14 @@ import javax.ws.rs.core.Response;
  */
 @Component
 @Path("/auth")
+@Slf4j
 public class UserAuth extends BaseApi<User> {
-
-    private static Logger logger = LoggerFactory.getLogger(UserAuth.class);
 
     @Autowired
     private UserService service;
 
     public UserAuth() {
-        super(logger, User.class);
+        super(User.class);
     }
 
     @GET

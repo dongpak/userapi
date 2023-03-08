@@ -80,7 +80,7 @@ public class UserService {
 	 */
 	public User getResource(String id) {
 
-		Optional<UserEntity> optional = storage.findById(id);
+		Optional<UserEntity> optional = storage.findById(UUID.fromString(id));
 
 		checkResourceNotFound(id, optional);
 
@@ -145,7 +145,7 @@ public class UserService {
 	 * @return
 	 */
 	public User updateResource(User resource) {
-		Optional<UserEntity> optional = storage.findById(resource.getName());
+		Optional<UserEntity> optional = storage.findById(UUID.fromString(resource.getName()));
 
 		checkResourceNotFound(resource.getName(), optional);
 
@@ -182,11 +182,11 @@ public class UserService {
 	 * @return
 	 */
 	public User deleteResource(String id) {
-		Optional<UserEntity> optional = storage.findById(id);
+		Optional<UserEntity> optional = storage.findById(UUID.fromString(id));
 
 		checkResourceNotFound(id, optional);
 
-		storage.deleteById(id);
+		storage.deleteById(UUID.fromString(id));
 
 		UserEntity entity = optional.get();
 		moveMember(entity);
@@ -200,7 +200,7 @@ public class UserService {
 	 * @return
 	 */
 	public String authenticate(User resource, String location) {
-		Optional<UserEntity> optional = storage.findById(resource.getName());
+		Optional<UserEntity> optional = storage.findById(UUID.fromString(resource.getName()));
 
 		if (optional.isPresent() == false) {
 			throw new NotAuthorizedException("Invalid credentials");

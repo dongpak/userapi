@@ -12,15 +12,23 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.assertj.core.api.Assertions;
+import org.junit.Rule;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.net.Inet4Address;
 import java.util.Iterator;
@@ -31,11 +39,13 @@ import java.util.UUID;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@ActiveProfiles(profiles = {"test"})
+@AutoConfigureEmbeddedDatabase
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserApiApplicationTest {
 
 	private static final String 	TOKEN_PREFIX 	= "Bearer ";
 	private static final String 	HEADER_AUTH 	= "Authorization";
-
 
 	@LocalServerPort
 	private int 		port;
@@ -139,7 +149,7 @@ public class UserApiApplicationTest {
 		resource.setName("TestUser" + number);
 		resource.setToken("TestToken");
 		resource.setRoles("admin");
-		resource.setChurchId(UUID.randomUUID().toString());
+		resource.setChurchId(UUID.randomUUID());
 		resource.setActive(true);
 
 		return resource;

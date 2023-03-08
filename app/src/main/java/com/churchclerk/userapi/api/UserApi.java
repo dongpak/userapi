@@ -7,6 +7,7 @@ import com.churchclerk.baseapi.BaseApi;
 import com.churchclerk.baseapi.model.ApiCaller;
 import com.churchclerk.userapi.model.User;
 import com.churchclerk.userapi.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import java.util.Date;
+import java.util.UUID;
 
 
 /**
@@ -25,9 +27,8 @@ import java.util.Date;
  */
 @Component
 @Path("/user")
+@Slf4j
 public class UserApi extends BaseApi<User> {
-
-	private static Logger logger = LoggerFactory.getLogger(UserApi.class);
 
 	@QueryParam("name")
 	private String nameLike;
@@ -36,7 +37,7 @@ public class UserApi extends BaseApi<User> {
 	private String rolesLike;
 
 	@QueryParam("churchId")
-	private String churchIdLike;
+	private String churchId;
 
 
 	@Autowired
@@ -47,7 +48,7 @@ public class UserApi extends BaseApi<User> {
 	 * 
 	 */
 	public UserApi() {
-		super(logger, User.class);
+		super(User.class);
 		setCreateRoles(ApiCaller.Role.ADMIN);
 		setReadRoles(ApiCaller.Role.ADMIN);
 		setUpdateRoles(ApiCaller.Role.ADMIN);
@@ -68,22 +69,22 @@ public class UserApi extends BaseApi<User> {
 		criteria.setName(nameLike);
 		criteria.setRoles(rolesLike);
 
-		if (churchIdLike == null) {
+		if (churchId == null) {
 			apiCaller.getMemberOf().forEach(id -> {
-				if (churchIdLike == null) {
-					churchIdLike = id;
+				if (churchId == null) {
+					churchId = id;
 				}
 			});
 		}
 
-		if (readAllowed(churchIdLike)) {
-			if (churchIdLike != null) {
-				criteria.setChurchId(churchIdLike);
+		if (readAllowed(churchId)) {
+			if (churchId != null) {
+				criteria.setChurchId(UUID.fromString(churchId));
 			}
 		}
 		else {
 			// force return of empty array
-			criteria.setChurchId("NOTALLOWED");
+			criteria.setChurchId(null);
 		}
 
 		return criteria;
@@ -98,7 +99,7 @@ public class UserApi extends BaseApi<User> {
 
 		User resource = service.getResource(id);
 
-		if ((resource == null) || (readAllowed(resource.getChurchId()) == false)) {
+		if ((resource == null) || (readAllowed(resource.getChurchId().toString()) == false)) {
 			throw new NotFoundException();
 		}
 
@@ -115,15 +116,9 @@ public class UserApi extends BaseApi<User> {
 			throw new BadRequestException("User's name, token, roles, and churchId cannot be null");
 		}
 
-		if (createAllowed(resource.getChurchId()) == false) {
+		if (createAllowed(resource.getChurchId().toString()) == false) {
 			throw new ForbiddenException();
 		}
-
-		//resource.setId(UUID.randomUUID().toString());
-		resource.setCreatedBy(apiCaller.getUserid());
-		resource.setCreatedDate(new Date());
-		resource.setUpdatedBy(apiCaller.getUserid());
-		resource.setUpdatedDate(new Date());
 
 		return service.createResource(resource);
 	}
@@ -149,12 +144,12 @@ public class UserApi extends BaseApi<User> {
 		}
 
 		// -- church id is null and has super role, then allow
-		if (updateAllowed(found.getChurchId(), this::hasSuperRole) == false) {
+		if (updateAllowed(found.getChurchId().toString(), this::hasSuperRole) == false) {
 			throw new ForbiddenException();
 		}
 
-		resource.setUpdatedBy(apiCaller.getUserid());
-		resource.setUpdatedDate(new Date());
+//		resource.setUpdatedBy(apiCaller.getUserid());
+//		resource.setUpdatedDate(new Date());
 
 		return service.updateResource(resource);
 	}
@@ -179,7 +174,7 @@ public class UserApi extends BaseApi<User> {
 			throw new ForbiddenException();
 		}
 
-		if (deleteAllowed(found.getChurchId()) == false) {
+		if (deleteAllowed(found.getChurchId().toString()) == false) {
 			throw new ForbiddenException();
 		}
 

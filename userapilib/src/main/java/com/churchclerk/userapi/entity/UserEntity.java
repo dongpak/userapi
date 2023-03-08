@@ -7,6 +7,10 @@ import com.churchclerk.memberapi.entity.MemberEntity;
 import com.churchclerk.memberapi.model.Member;
 import com.churchclerk.userapi.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -20,6 +24,10 @@ import java.util.UUID;
  */
 @Entity
 @Table(name="user")
+@SuperBuilder
+@NoArgsConstructor
+@Setter
+@EntityListeners(AuditingEntityListener.class)
 public class UserEntity extends User {
 
 	private MemberEntity memberEntity;
@@ -50,7 +58,7 @@ public class UserEntity extends User {
 	}
 
 	@Column(name="church_id")
-	public String getChurchId() {
+	public UUID getChurchId() {
 		return super.getChurchId();
 	}
 
@@ -61,30 +69,30 @@ public class UserEntity extends User {
 		return memberEntity;
 	}
 
-	public void setMemberEntity(MemberEntity memberEntity) {
-		this.memberEntity = memberEntity;
-	}
-
 	@Transient
 	public Member getMember() {
 		return super.getMember();
 	}
 
+	@Column(name="created_date")
 	@Override
 	public Date getCreatedDate() {
 		return super.getCreatedDate();
 	}
 
+	@Column(name="created_by")
 	@Override
 	public String getCreatedBy() {
 		return super.getCreatedBy();
 	}
 
+	@Column(name="updated_date")
 	@Override
 	public Date getUpdatedDate() {
 		return super.getUpdatedDate();
 	}
 
+	@Column(name="updated_by")
 	@Override
 	public String getUpdatedBy() {
 		return super.getUpdatedBy();

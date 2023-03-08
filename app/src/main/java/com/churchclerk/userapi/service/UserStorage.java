@@ -8,12 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.UUID;
+
 
 /**
  * 
  * @author dongp
  *
  */
-public interface UserStorage extends JpaRepository<UserEntity, String>, CrudRepository<UserEntity, String>, JpaSpecificationExecutor<UserEntity> {
+public interface UserStorage extends JpaRepository<UserEntity, UUID>, CrudRepository<UserEntity, UUID>, JpaSpecificationExecutor<UserEntity> {
 
 }

@@ -5,79 +5,25 @@ package com.churchclerk.userapi.model;
 
 import com.churchclerk.baseapi.model.BaseModel;
 import com.churchclerk.memberapi.model.Member;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Objects;
+import java.util.UUID;
 
 /**
  *
  */
+@Data
+@SuperBuilder
+@NoArgsConstructor
 public class User extends BaseModel {
 
     private String  name;
     private String  token;
     private String  roles;
-    private String  churchId;
+    private UUID    churchId;
     private Member  member;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @JsonSerialize(using = TokenSerializer.class)
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
-
-    public String getChurchId() {
-        return churchId;
-    }
-
-    public void setChurchId(String churchId) {
-        this.churchId = churchId;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        if (!super.equals(o)) return false;
-        User user = (User) o;
-        return Objects.equals(name, user.name) &&
-                Objects.equals(token, user.token) &&
-                Objects.equals(roles, user.roles) &&
-                Objects.equals(churchId, user.churchId) &&
-                Objects.equals(member, user.member);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), name, token, roles, churchId, member);
-    }
 
     /**
      *

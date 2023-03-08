@@ -1,0 +1,23 @@
+#management.endpoints.web.exposure.include=*
+#server.contextPath=/userapi
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/churchclerk
+    username: ${CHURCHCLERK_DBUSER}
+    password: ${CHURCHCLERK_DBPASS}
+
+
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.xml
+
+
+jwt:
+  secret: ${CHURCHCLERK_JWT_SECRET}
+  debug: false
+
+logging:
+  level:
+#    root: DEBUG
+    org:
+      hibernate: INFO
