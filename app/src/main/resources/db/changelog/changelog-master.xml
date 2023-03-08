@@ -6,8 +6,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
     http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <include file="db/changelog/changes/member-table-changelog-0.sql"/>
-    <include file="db/changelog/changes/user-table-changelog-0.sql"/>
+    <include file="classpath:/db/changelog/changes/contact-table-changelog-0.sql" />
+    <include file="classpath:/db/changelog/changes/church-table-changelog-0.sql"/>
+    <include file="classpath:/db/changelog/changes/member-table-changelog-0.sql"/>
+    <include file="classpath:/db/changelog/changes/member-church-table-changelog-0.sql"/>
+
+    <include file="/db/changelog/changes/user-table-changelog-0.sql"/>
 </databaseChangeLog>
 
 

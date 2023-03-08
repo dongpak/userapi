@@ -9,7 +9,7 @@ plugins {
 group 'com.churchclerk'
 version '1.0'
 
-sourceCompatibility = 1.11
+//sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -45,7 +45,8 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation libs.zonkytest
-    testImplementation 'io.zonky.test:embedded-postgres:2.0.3'
+//    testImplementation 'io.zonky.test:embedded-postgres:2.0.3'
+    testImplementation('com.h2database:h2')
     testImplementation('com.google.code.gson:gson')
     testImplementation(libs.lombok)
     testAnnotationProcessor(libs.lombok)

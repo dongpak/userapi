@@ -12,6 +12,7 @@ import com.churchclerk.securityapi.SecurityToken;
 import com.churchclerk.userapi.model.User;
 import com.churchclerk.userapi.entity.UserEntity;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,8 @@ import java.util.*;
  *
  */
 @Service
+@Slf4j
 public class UserService {
-
-	private static Logger logger	= LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserStorage storage;
@@ -80,7 +80,7 @@ public class UserService {
 	 */
 	public User getResource(String id) {
 
-		Optional<UserEntity> optional = storage.findById(UUID.fromString(id));
+		Optional<UserEntity> optional = storage.findById(id);
 
 		checkResourceNotFound(id, optional);
 
@@ -145,7 +145,7 @@ public class UserService {
 	 * @return
 	 */
 	public User updateResource(User resource) {
-		Optional<UserEntity> optional = storage.findById(UUID.fromString(resource.getName()));
+		Optional<UserEntity> optional = storage.findById(resource.getName());
 
 		checkResourceNotFound(resource.getName(), optional);
 
@@ -182,11 +182,11 @@ public class UserService {
 	 * @return
 	 */
 	public User deleteResource(String id) {
-		Optional<UserEntity> optional = storage.findById(UUID.fromString(id));
+		Optional<UserEntity> optional = storage.findById(id);
 
 		checkResourceNotFound(id, optional);
 
-		storage.deleteById(UUID.fromString(id));
+		storage.deleteById(id);
 
 		UserEntity entity = optional.get();
 		moveMember(entity);
@@ -200,7 +200,7 @@ public class UserService {
 	 * @return
 	 */
 	public String authenticate(User resource, String location) {
-		Optional<UserEntity> optional = storage.findById(UUID.fromString(resource.getName()));
+		Optional<UserEntity> optional = storage.findById(resource.getName());
 
 		if (optional.isPresent() == false) {
 			throw new NotAuthorizedException("Invalid credentials");

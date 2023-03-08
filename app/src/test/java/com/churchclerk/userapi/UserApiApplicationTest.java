@@ -2,32 +2,26 @@
  */
 package com.churchclerk.userapi;
 
-import com.churchclerk.baseapi.BaseApi;
 import com.churchclerk.baseapi.model.ApiCaller;
-import com.churchclerk.userapi.api.UserApi;
 import com.churchclerk.securityapi.SecurityApi;
 import com.churchclerk.securityapi.SecurityToken;
+import com.churchclerk.userapi.api.UserApi;
 import com.churchclerk.userapi.model.User;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
-import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.net.Inet4Address;
@@ -40,8 +34,7 @@ import java.util.UUID;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles(profiles = {"test"})
-@AutoConfigureEmbeddedDatabase
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@AutoConfigureEmbeddedDatabase(type = AutoConfigureEmbeddedDatabase.DatabaseType.POSTGRES)
 public class UserApiApplicationTest {
 
 	private static final String 	TOKEN_PREFIX 	= "Bearer ";
@@ -59,12 +52,14 @@ public class UserApiApplicationTest {
 	@Autowired
 	private TestRestTemplate	restTemplate;
 
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
 	private SecurityToken		testToken;
 	private HttpHeaders 		testHeaders;
 
 	@BeforeEach
 	public void setupMock() {
-
 		try {
 			if (createToken("test", Inet4Address.getLoopbackAddress().getHostAddress()) == false) {
 				throw new RuntimeException("Error creating security token");
@@ -94,6 +89,9 @@ public class UserApiApplicationTest {
 	@Order(0)
 	public void contexLoads() throws Exception {
 		Assertions.assertThat(api).isNotNull();
+//
+//		var r = jdbcTemplate.queryForList("select * from public.user", UserEntity.class);
+//		Assertions.assertThat(r).isNotNull();
 	}
 
 	@Test
@@ -342,9 +340,9 @@ public class UserApiApplicationTest {
 	@Order(9)
 	public void testAuthResource() throws Exception {
 
-		createResourceAndCheck(createUser(1009));
+		createResourceAndCheck(createUser(1010));
 
-		User					resource	= createUser(1009);
+		User					resource	= createUser(1010);
 		HttpEntity<User>		entity 		= new HttpEntity<User>(resource, testHeaders);
 		ResponseEntity<String>	response	= restTemplate.exchange(createAuthJwtUrl(), HttpMethod.POST, entity, String.class);
 

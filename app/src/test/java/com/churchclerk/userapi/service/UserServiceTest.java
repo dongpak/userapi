@@ -104,9 +104,9 @@ public class UserServiceTest {
 
 	@Test
 	public void testGetResource() throws Exception {
-		String	id = UUID.randomUUID().toString();
+		String	id = "UnitTest";
 
-		Mockito.when(storage.findById(Mockito.any(UUID.class))).thenReturn(Optional.of(testEntity));
+		Mockito.when(storage.findById(Mockito.any(String.class))).thenReturn(Optional.of(testEntity));
 		User actual = testObject.getResource(id);
 
 		Assertions.assertThat(actual).isEqualTo(testEntity);
@@ -126,7 +126,7 @@ public class UserServiceTest {
 	public void testUpdateResource() throws Exception {
 		testData.setName(testId.toString());
 
-		Mockito.when(storage.findById(UUID.fromString(testData.getName()))).thenReturn(Optional.of(testEntity));
+		Mockito.when(storage.findById(testData.getName())).thenReturn(Optional.of(testEntity));
 		Mockito.when(storage.save(testEntity)).thenReturn(testEntity);
 
 		User actual = testObject.updateResource(testData);
@@ -149,7 +149,7 @@ public class UserServiceTest {
 	public void testDeleteResource() throws Exception {
 		testData.setName(testId.toString());
 
-		Mockito.when(storage.findById(UUID.fromString(testData.getName()))).thenReturn(Optional.of(testEntity));
+		Mockito.when(storage.findById(testData.getName())).thenReturn(Optional.of(testEntity));
 		//Mockito.when(storage.deleteById(testData.getName()));
 
 		User actual = testObject.deleteResource(testData.getName());
@@ -166,7 +166,7 @@ public class UserServiceTest {
 
 		testEntity.setToken(encryptToken(testData.getToken()));
 
-		Mockito.when(storage.findById(UUID.fromString(testData.getName()))).thenReturn(Optional.of(testEntity));
+		Mockito.when(storage.findById(testData.getName())).thenReturn(Optional.of(testEntity));
 
 		String actual = testObject.authenticate(testData, "127.0.0.1");
 

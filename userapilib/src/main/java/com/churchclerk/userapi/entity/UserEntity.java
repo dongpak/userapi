@@ -23,7 +23,7 @@ import java.util.UUID;
  *
  */
 @Entity
-@Table(name="user")
+@Table(name="cc_user")
 @SuperBuilder
 @NoArgsConstructor
 @Setter

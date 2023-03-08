@@ -16,6 +16,6 @@ import java.util.UUID;
  * @author dongp
  *
  */
-public interface UserStorage extends JpaRepository<UserEntity, UUID>, CrudRepository<UserEntity, UUID>, JpaSpecificationExecutor<UserEntity> {
+public interface UserStorage extends JpaRepository<UserEntity, String>, CrudRepository<UserEntity, String>, JpaSpecificationExecutor<UserEntity> {
 
 }
